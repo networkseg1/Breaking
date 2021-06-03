@@ -1,0 +1,72 @@
+Irked - 10.10.10.117 -  Linux - Easy
+
+ENUMERATION
+Port enumeration: 
+-p- all port
+--open: all open
+-T5: 
+-v: reports ports in the console
+-n: don't apply name resolution
+-oN: export results to nmap format
+
+kali:~/htb-vip/irked$ nmap -p- --open -T5 -v -n 10.10.10.117 -oN irked.puertos
+PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+111/tcp   open  rpcbind
+6697/tcp  open  ircs-u
+8067/tcp  open  infi-async
+52603/tcp open  unknown
+65534/tcp open  unknown
+
+Basic service enumeration:
+@kali:~/htb-vip/irked$ nmap -sC -sV -p22,80,111,6697,8067,52603,65534 10.10.10.117 -oN irked.servicios
+
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 6.7p1 Debian 5+deb8u4 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 6a:5d:f5:bd:cf:83:78:b6:75:31:9b:dc:79:c5:fd:ad (DSA)
+|   2048 75:2e:66:bf:b9:3c:cc:f7:7e:84:8a:8b:f0:81:02:33 (RSA)
+|   256 c8:a3:a2:5e:34:9a:c4:9b:90:53:f7:50:bf:ea:25:3b (ECDSA)
+|_  256 8d:1b:43:c7:d0:1a:4c:05:cf:82:ed:c1:01:63:a2:0c (ED25519)
+80/tcp    open  http    Apache httpd 2.4.10 ((Debian))
+|_http-server-header: Apache/2.4.10 (Debian)
+|_http-title: Site doesn't have a title (text/html).
+111/tcp   open  rpcbind 2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|   100000  3,4          111/udp6  rpcbind
+|   100024  1          42496/udp6  status
+|   100024  1          52603/tcp   status
+|   100024  1          59968/udp   status
+|_  100024  1          60754/tcp6  status
+6697/tcp  open  irc     UnrealIRCd
+8067/tcp  open  irc     UnrealIRCd
+52603/tcp open  status  1 (RPC #100024)
+65534/tcp open  irc     UnrealIRCd
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+FOOTHOLD
+
+searchploit UnrealIRCd
+
+@kali:~/htb-vip/irked$ searchsploit UnrealIRCd
+------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+ Exploit Title                                                                                                                      |  Path
+------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+UnrealIRCd 3.2.8.1 - Backdoor Command Execution (Metasploit)                                                                        | linux/remote/16922.rb
+UnrealIRCd 3.2.8.1 - Local Configuration Stack Overflow                                                                             | windows/dos/18011.txt
+UnrealIRCd 3.2.8.1 - Remote Downloader/Execute                                                                                      | linux/remote/13853.pl
+UnrealIRCd 3.x - Remote Denial of Service                                                                                           | windows/dos/27407.pl
+------------------------------------------------------------------------------------------------------------------------------------ --------------------
+
+Backdoor Command Execution sounds interesting, but as we are preparing OSCP, we are not goint to use Metasploit
+
+Let's have a look at google: UnrealIRCd 3.2.8.1 exploit github
+
+First entry: Ranger11Danger
+/
+UnrealIRCd-3.2.8.1-Backdoor
